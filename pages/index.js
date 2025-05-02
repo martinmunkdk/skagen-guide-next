@@ -8,7 +8,8 @@ export default function Home() {
 
   const fetchGuide = async () => {
     setLoading(true);
-    const res = await fetch("https://YOUR_BACKEND_URL.onrender.com/api/generate-guide", {
+    const res = await fetch("https://skagen-guide-backend.onrender.com/api/generate-guide
+", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
