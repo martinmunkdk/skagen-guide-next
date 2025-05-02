@@ -5,20 +5,30 @@ export default function Home() {
   const [guide, setGuide] = useState("");
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("Skagen");
+  const [error, setError] = useState(null);
 
   const fetchGuide = async () => {
     setLoading(true);
-    const res = await fetch("https://skagen-guide-backend.onrender.com/api/generate-guide
-", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ destination: query }),
-    });
-    const data = await res.json();
-    setGuide(data.guide);
-    setLoading(false);
+    setError(null);
+    setGuide("");
+    try {
+      const res = await fetch("https://skagen-guide-backend.onrender.com/api/generate-guide", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ destination: query }),
+      });
+
+      if (!res.ok) throw new Error("Fejl i forbindelsen til serveren");
+
+      const data = await res.json();
+      setGuide(data.guide || "Ingen guide modtaget.");
+    } catch (err) {
+      setError("Der opstod en fejl. Prøv igen senere.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -46,8 +56,10 @@ export default function Home() {
             {loading ? "Genererer..." : "Generér"}
           </button>
         </div>
-        <div className="bg-blue-100 border border-blue-300 rounded-xl p-6 whitespace-pre-line text-gray-800">
-          {guide || "Ingen guide fundet."}
+        <div className="bg-blue-100 border border-blue-300 rounded-xl p-6 whitespace-pre-line text-gray-800 min-h-[150px]">
+          {loading && "Genererer guide... vent venligst."}
+          {error && <div className="text-red-600">{error}</div>}
+          {!loading && !error && guide}
         </div>
       </div>
     </div>
